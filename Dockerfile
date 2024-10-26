@@ -1,4 +1,4 @@
-FROM golang:1.19
+FROM golang:1.22
 
 LABEL authors="viste"
 
@@ -6,6 +6,6 @@ WORKDIR /app
 COPY . .
 
 RUN go mod tidy
-RUN go build -o main .
+RUN go build -o main ./cmd/server
 
 CMD ["./main"]
