@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"larets/config"
+	"github.com/Viste/larets/config"
 	"log"
 )
 
