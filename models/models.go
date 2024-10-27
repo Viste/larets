@@ -1,6 +1,5 @@
 package models
 
-// DockerImage модель данных для Docker образов
 type DockerImage struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -8,7 +7,6 @@ type DockerImage struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// GitRepository модель данных для Git репозиториев
 type GitRepository struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -16,7 +14,13 @@ type GitRepository struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// HelmChart модель данных для Helm чартов
+type StoredFile struct {
+	ID        int    `json:"id" gorm:"primaryKey"`
+	FileName  string `json:"file_name"`
+	FilePath  string `json:"file_path"`
+	CreatedAt string `json:"created_at"`
+}
+
 type HelmChart struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -24,7 +28,6 @@ type HelmChart struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// MavenArtifact модель данных для Maven артефактов
 type MavenArtifact struct {
 	ID         int    `json:"id"`
 	GroupID    string `json:"group_id"`
@@ -33,7 +36,6 @@ type MavenArtifact struct {
 	CreatedAt  string `json:"created_at"`
 }
 
-// RpmPackage модель данных для RPM пакетов
 type RpmPackage struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -41,7 +43,6 @@ type RpmPackage struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// DebPackage модель данных для DEB пакетов
 type DebPackage struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`

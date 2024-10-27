@@ -8,31 +8,35 @@ import (
 func InitRepositories() {
 	if config.Config["ENABLE_DOCKER"] == "true" {
 		log.Println("Инициализация Docker репозитория")
-		// Здесь добавить инициализацию для работы с Docker
+		InitDockerRepository()
 	}
 
 	if config.Config["ENABLE_GIT"] == "true" {
 		log.Println("Инициализация Git репозитория")
-		// Здесь добавить инициализацию для работы с Git
+		InitGitRepository()
 	}
 
 	if config.Config["ENABLE_HELM"] == "true" {
 		log.Println("Инициализация Helm репозитория")
-		// Здесь добавить инициализацию для работы с Helm
+		// Пример инициализации Helm репозитория
+		// Логика подключения и настройки Helm
 	}
 
 	if config.Config["ENABLE_MAVEN"] == "true" {
 		log.Println("Инициализация Maven репозитория")
-		// Здесь добавить инициализацию для работы с Maven
+		// Пример инициализации Maven репозитория
+		// Логика подключения и настройки Maven
 	}
 
 	if config.Config["ENABLE_RPM"] == "true" {
 		log.Println("Инициализация RPM репозитория")
-		// Здесь добавить инициализацию для работы с RPM
+		// Пример инициализации RPM репозитория
+		// Логика подключения и настройки RPM
 	}
 
 	if config.Config["ENABLE_DEB"] == "true" {
 		log.Println("Инициализация DEB репозитория")
-		// Здесь добавить инициализацию для работы с DEB
+		// Пример инициализации DEB репозитория
+		// Логика подключения и настройки DEB
 	}
 }

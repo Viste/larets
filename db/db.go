@@ -1,22 +1,20 @@
 package db
 
 import (
-	"database/sql"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 )
 
-func InitDB(connStr string) (*sql.DB, error) {
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		return nil, err
-	}
+var DB *gorm.DB
 
-	// Проверка подключения
-	if err := db.Ping(); err != nil {
-		return nil, err
+func InitDB(connStr string) error {
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	if err != nil {
+		return err
 	}
 
 	log.Println("Подключение к базе данных успешно установлено")
-	return db, nil
+	DB = db
+	return nil
 }

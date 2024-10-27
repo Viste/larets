@@ -1,12 +1,19 @@
 package repositories
 
 import (
+	"github.com/Viste/larets/db"
+	"github.com/Viste/larets/models"
 	"log"
 )
 
-func StoreDockerImage(imageName string, tag string) {
-	// Здесь будет логика для сохранения Docker образа в файловую систему и сохранения метаданных в базу данных
+func StoreDockerImage(imageName string, tag string) error {
+	dockerImage := models.DockerImage{Name: imageName, Tag: tag}
+	result := db.DB.Create(&dockerImage)
+	if result.Error != nil {
+		return result.Error
+	}
 	log.Printf("Сохраняем образ: %s с тэгом: %s", imageName, tag)
+	return nil
 }
 
 func ProxyDockerRepository(repoURL string) {
@@ -14,7 +21,6 @@ func ProxyDockerRepository(repoURL string) {
 	log.Printf("Проксируем Docker репозиторий: %s", repoURL)
 }
 
-func ProxyGitRepository(repoURL string) {
-	// Логика проксирования запросов к удаленным Git репозиториям и сохранения копий
-	log.Printf("Проксируем Git репозиторий: %s", repoURL)
+func InitDockerRepository() {
+	log.Println("Инициализация Docker репозитория")
 }
