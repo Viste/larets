@@ -1,0 +1,16 @@
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/larets?sslmode=disable
+
+ENABLE_DOCKER=true
+ENABLE_GIT=true
+ENABLE_HELM=true
+
+SERVER_PORT=8080
+BASE_URL=http://localhost:8080
+
+STORAGE_PATH=./storage
+
+DEFAULT_CACHE_TTL=1440  #minutes
+
+ENABLE_AUTH=false
+ADMIN_USER=admin
+ADMIN_PASSWORD=admin

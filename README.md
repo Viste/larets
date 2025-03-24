@@ -1,95 +1,174 @@
-# Проект Larets
+# Larets
 
-## Описание
+Larets - это менеджер репозиториев, аналог Nexus Repository Manager, написанный на Go. Larets позволяет создавать,
+хранить и управлять Docker, Git и Helm репозиториями.
 
-Larets — это инструмент для работы с различными типами репозиториев, такими как Docker, Git, Helm, Maven, RPM и DEB.
-Проект предоставляет API для CRUD операций, а также позволяет проксировать и хранить образы, артефакты и другие пакеты.
-Это проект с открытым исходным кодом, который использует PostgreSQL для хранения метаданных о репозиториях и
-ориентирован на асинхронные операции.
+## Возможности
 
-## Функциональность
+- **Docker репозитории**: хранение и проксирование Docker образов
+- **Git репозитории**: хранение и проксирование Git репозиториев
+- **Helm репозитории**: хранение и проксирование Helm чартов
+- **Типы репозиториев**:
+    - Hosted (хостинг): для хранения собственных артефактов
+    - Proxy (прокси): для проксирования удаленных репозиториев
+    - Group (группа): для объединения нескольких репозиториев (в разработке)
 
-- **База данных**: PostgreSQL.
-- **Конфигурация**: Использование переменных окружения и файла `.env` для конфигурации.
-- **Поддерживаемые репозитории**: Docker, Git, Helm, Maven, RPM, DEB.
-- **API для CRUD операций**: REST API для управления и администрирования репозиториев.
-- **Веб-интерфейс**: В дальнейшем планируется добавление веб-интерфейса.
+## Требования
 
-## Структура проекта
-
-- `config/` - Работа с конфигурацией проекта.
-- `repositories/` - Работа с различными типами репозиториев (Docker, Git, Helm, Maven, RPM, DEB).
-- `api/` - CRUD операции и основной API.
-- `web/` - дира для будущего веб-интерфейса.
-- `models/` - Описание моделей базы данных.
+- Go 1.22+
+- PostgreSQL 12+
+- Git
+- Helm (для работы с Helm репозиториями)
 
 ## Установка
 
-### Требования
-
-- Go 1.22+
-- PostgreSQL 13+
-
-### Шаги установки
+### Из исходного кода
 
 1. Клонируйте репозиторий:
-   ```sh
-   git clone https://github.com/yourusername/larets.git
+   ```bash
+   git clone https://github.com/Viste/larets.git
    cd larets
    ```
 
-2. Создайте файл `.env` на основе примера `.env.example` и заполните необходимые параметры:
-   ```sh
+2. Создайте `.env` файл на основе примера:
+   ```bash
    cp .env.example .env
+   ```
+
+3. Настройте переменные окружения в `.env` файле:
+   ```
+   DATABASE_URL=postgres://username:password@localhost:5432/larets?sslmode=disable
+   ```
+
+4. Соберите и запустите приложение:
+   ```bash
+   go build -o larets .
+   ./larets
+   ```
+
+### С использованием Docker
+
+1. Создайте `.env` файл на основе примера:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Настройте переменные окружения в `.env` файле.
+
+3. Соберите и запустите Docker контейнер:
+   ```bash
+   docker build -t larets .
+   docker run -d --name larets -p 8080:8080 --env-file .env -v larets-storage:/app/storage larets
    ```
 
 ## Конфигурация
 
-Основные настройки выполняются через переменные окружения. Примеры параметров конфигурации:
+Конфигурация осуществляется через переменные окружения или файл `.env`:
 
-- `DATABASE_URL` - URL для подключения к базе данных PostgreSQL.
-- `ENABLE_DOCKER`, `ENABLE_GIT`, `ENABLE_HELM`, `ENABLE_MAVEN`, `ENABLE_RPM`, `ENABLE_DEB` - Включение или отключение
-  работы с конкретными типами репозиториев (значения `true` или `false`).
+| Переменная        | Описание                                  | Значение по умолчанию |
+|-------------------|-------------------------------------------|-----------------------|
+| DATABASE_URL      | URL подключения к PostgreSQL              | -                     |
+| ENABLE_DOCKER     | Включить поддержку Docker репозиториев    | true                  |
+| ENABLE_GIT        | Включить поддержку Git репозиториев       | true                  |
+| ENABLE_HELM       | Включить поддержку Helm репозиториев      | true                  |
+| SERVER_PORT       | Порт HTTP сервера                         | 8080                  |
+| BASE_URL          | Базовый URL для доступа к репозиториям    | http://localhost:8080 |
+| STORAGE_PATH      | Путь к директории для хранения артефактов | ./storage             |
+| DEFAULT_CACHE_TTL | TTL кеша для прокси-репозиториев (минуты) | 1440 (24 часа)        |
+| ENABLE_AUTH       | Включить аутентификацию                   | false                 |
+| ADMIN_USER        | Имя пользователя администратора           | admin                 |
+| ADMIN_PASSWORD    | Пароль администратора                     | admin                 |
 
-## Использование
+## API
 
-После запуска приложение доступно на порту `8080`. Оно предоставляет REST API для работы с репозиториями:
+### Общие эндпоинты
 
-- **Docker**: `/images`
-- **Git**: `/git`
-- **Helm**: `/helm`
-- **Maven**: `/maven`
-- **RPM**: `/rpm`
-- **DEB**: `/deb`
+- `GET /api/health` - Проверка состояния сервера
 
-Пример запроса:
+### Docker репозитории
 
-```sh
-curl http://localhost:8080/images
+- `GET /api/docker/repositories` - Список Docker репозиториев
+- `POST /api/docker/repositories` - Создание Docker репозитория
+- `GET /api/docker/repositories/{name}` - Информация о Docker репозитории
+- `GET /api/docker/images?repository={name}` - Список образов в репозитории
+- `POST /api/docker/images?repository={name}&name={image}&tag={tag}` - Загрузка образа
+
+### Git репозитории
+
+- `GET /api/git/repositories` - Список Git репозиториев
+- `POST /api/git/repositories` - Создание Git репозитория
+- `GET /api/git/repositories/{name}` - Информация о Git репозитории
+- `POST /api/git/sync/{name}` - Синхронизация прокси-репозитория
+
+### Helm репозитории
+
+- `GET /api/helm/repositories` - Список Helm репозиториев
+- `POST /api/helm/repositories` - Создание Helm репозитория
+- `GET /api/helm/repositories/{name}` - Информация о Helm репозитории
+- `GET /api/helm/charts?repository={name}` - Список чартов в репозитории
+- `POST /api/helm/charts?repository={name}&filename={filename}` - Загрузка чарта
+- `POST /api/helm/sync/{name}` - Синхронизация прокси-репозитория
+
+## Примеры использования
+
+### Создание Docker репозитория
+
+```bash
+# Создание хостового репозитория
+curl -X POST http://localhost:8080/api/docker/repositories \
+  -H "Content-Type: application/json" \
+  -d '{"name":"docker-local","description":"Локальный Docker репозиторий","type":"hosted"}'
+
+# Создание прокси-репозитория
+curl -X POST http://localhost:8080/api/docker/repositories \
+  -H "Content-Type: application/json" \
+  -d '{"name":"docker-proxy","description":"Прокси Docker Hub","type":"proxy","url":"https://registry-1.docker.io"}'
 ```
 
-## Структуры данных
+### Создание Git репозитория
 
-- **DockerImage**: Информация об образах Docker (ID, имя, тег, время создания).
-- **GitRepository**: Информация о Git репозиториях (ID, имя, URL, время создания).
-- **HelmChart**, **MavenArtifact**, **RpmPackage**, **DebPackage** - Структуры для хранения информации о соответствующих
-  пакетах.
+```bash
+# Создание хостового репозитория
+curl -X POST http://localhost:8080/api/git/repositories \
+  -H "Content-Type: application/json" \
+  -d '{"name":"git-local","description":"Локальный Git репозиторий","type":"hosted"}'
 
-## Лицензия
+# Создание прокси-репозитория
+curl -X POST http://localhost:8080/api/git/repositories \
+  -H "Content-Type: application/json" \
+  -d '{"name":"git-proxy","description":"Прокси GitHub","type":"proxy","url":"https://github.com/Viste/larets.git"}'
+```
 
-Проект Larets распространяется под лицензией GPL. Подробности см. в файле LICENSE.
+### Создание Helm репозитория
 
-## Вклад
+```bash
+# Создание хостового репозитория
+curl -X POST http://localhost:8080/api/helm/repositories \
+  -H "Content-Type: application/json" \
+  -d '{"name":"helm-local","description":"Локальный Helm репозиторий","type":"hosted"}'
 
-Если хотите внести вклад в проект:
+# Создание прокси-репозитория
+curl -X POST http://localhost:8080/api/helm/repositories \
+  -H "Content-Type: application/json" \
+  -d '{"name":"helm-proxy","description":"Прокси Bitnami","type":"proxy","url":"https://charts.bitnami.com/bitnami"}'
+```
 
-1. Форкните репозиторий.
-2. Создайте ветку для вашей функции (`git checkout -b feature-branch`).
-3. Внесите изменения и сделайте коммит (`git commit -m 'Add some feature'`).
-4. Отправьте изменения в свой форк (`git push origin feature-branch`).
-5. Создайте Pull Request.
+### Загрузка Helm чарта
 
-## Контакты
+```bash
+curl -X POST http://localhost:8080/api/helm/charts?repository=helm-local&filename=my-chart-0.1.0.tgz \
+  --data-binary @my-chart-0.1.0.tgz
+```
 
-Для вопросов или предложений свяжитесь по адресу: [viste02@gmail.com]
+### Использование Helm репозитория в Helm CLI
 
+```bash
+# Добавление репозитория
+helm repo add larets-repo http://localhost:8080/helm/helm-local
+
+# Обновление репозитория
+helm repo update
+
+# Поиск чартов
+helm search repo larets-repo/
+```

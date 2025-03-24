@@ -1,51 +1,97 @@
 package models
 
-type DockerImage struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Tag       string `json:"tag"`
-	CreatedAt string `json:"created_at"`
+import (
+	"time"
+)
+
+type RepositoryType string
+
+const (
+	TypeHosted RepositoryType = "hosted"
+	TypeProxy  RepositoryType = "proxy"
+	TypeGroup  RepositoryType = "group"
+)
+
+type BaseRepository struct {
+	ID          int            `json:"id" gorm:"primaryKey"`
+	Name        string         `json:"name" gorm:"uniqueIndex"`
+	Description string         `json:"description"`
+	Type        RepositoryType `json:"type"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+}
+
+type DockerRepository struct {
+	BaseRepository
+	URL          string `json:"url,omitempty" gorm:"default:null"`
+	IndexType    string `json:"index_type,omitempty"`
+	CacheEnabled bool   `json:"cache_enabled" gorm:"default:true"`
+	CacheTTL     int    `json:"cache_ttl" gorm:"default:1440"`
+	StoragePath  string `json:"storage_path"`
 }
 
 type GitRepository struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	URL       string `json:"url"`
-	CreatedAt string `json:"created_at"`
+	BaseRepository
+	URL          string `json:"url,omitempty" gorm:"default:null"`
+	Branch       string `json:"branch" gorm:"default:'master'"`
+	CloneEnabled bool   `json:"clone_enabled" gorm:"default:true"`
+	PushEnabled  bool   `json:"push_enabled" gorm:"default:true"`
+	StoragePath  string `json:"storage_path"`
 }
 
-type StoredFile struct {
-	ID        int    `json:"id" gorm:"primaryKey"`
-	FileName  string `json:"file_name"`
-	FilePath  string `json:"file_path"`
-	CreatedAt string `json:"created_at"`
+type HelmRepository struct {
+	BaseRepository
+	URL          string `json:"url,omitempty" gorm:"default:null"`
+	IndexPath    string `json:"index_path" gorm:"default:'index.yaml'"`
+	CacheEnabled bool   `json:"cache_enabled" gorm:"default:true"`
+	CacheTTL     int    `json:"cache_ttl" gorm:"default:1440"`
+	StoragePath  string `json:"storage_path"`
+}
+
+type GroupMember struct {
+	ID         int    `json:"id" gorm:"primaryKey"`
+	GroupID    int    `json:"group_id"`
+	MemberID   int    `json:"member_id"`
+	MemberName string `json:"member_name"`
+	MemberType string `json:"member_type"`
+	Priority   int    `json:"priority"`
+}
+
+type Artifact struct {
+	ID            int       `json:"id" gorm:"primaryKey"`
+	RepositoryID  int       `json:"repository_id"`
+	RepoType      string    `json:"repo_type"`
+	Name          string    `json:"name"`
+	Version       string    `json:"version"`
+	Path          string    `json:"path"`
+	Size          int64     `json:"size"`
+	SHA256        string    `json:"sha256"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+	DownloadCount int       `json:"download_count" gorm:"default:0"`
+}
+
+type DockerImage struct {
+	Artifact
+	Tag      string   `json:"tag"`
+	Manifest []byte   `json:"manifest" gorm:"type:jsonb"`
+	Layers   []string `json:"layers" gorm:"type:text[]"`
 }
 
 type HelmChart struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Version   string `json:"version"`
-	CreatedAt string `json:"created_at"`
+	Artifact
+	AppVersion   string   `json:"app_version"`
+	Description  string   `json:"description"`
+	Keywords     []string `json:"keywords" gorm:"type:text[]"`
+	Dependencies []byte   `json:"dependencies" gorm:"type:jsonb"`
 }
 
-type MavenArtifact struct {
-	ID         int    `json:"id"`
-	GroupID    string `json:"group_id"`
-	ArtifactID string `json:"artifact_id"`
-	Version    string `json:"version"`
-	CreatedAt  string `json:"created_at"`
-}
-
-type RpmPackage struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Version   string `json:"version"`
-	CreatedAt string `json:"created_at"`
-}
-
-type DebPackage struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Version   string `json:"version"`
-	CreatedAt string `json:"created_at"`
+type StoredFile struct {
+	ID         int       `json:"id" gorm:"primaryKey"`
+	ArtifactID int       `json:"artifact_id"`
+	FileName   string    `json:"file_name"`
+	FilePath   string    `json:"file_path"`
+	Size       int64     `json:"size"`
+	SHA256     string    `json:"sha256"`
+	CreatedAt  time.Time `json:"created_at"`
 }

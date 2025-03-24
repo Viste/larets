@@ -4,12 +4,13 @@ import (
 	"github.com/Viste/larets/api"
 	"github.com/Viste/larets/config"
 	"github.com/Viste/larets/db"
-	"github.com/Viste/larets/repositories"
 	"log"
 	"os"
 )
 
 func main() {
+	log.Println("Larets - менеджер-репозиториев")
+
 	config.LoadConfig()
 
 	connStr := os.Getenv("DATABASE_URL")
@@ -21,9 +22,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Ошибка при инициализации базы данных: ", err)
 	}
-
 	log.Println("База данных успешно инициализирована")
 
-	repositories.InitRepositories()
+	err = db.EnsureStorageDirs(config.Config.StorageBasePath)
+	if err != nil {
+		log.Fatal("Ошибка при создании директорий хранилища: ", err)
+	}
+
 	api.RunAPIServer()
 }
